@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Analysis Result - Crowd Counting System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1.5rem 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #667eea;
+            margin-bottom: 0.5rem;
+            font-size: 1.8rem;
+        }
+
+        .header p {
+            color: #999;
+            font-size: 0.9rem;
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            text-align: center;
+        }
+
+        .stat-label {
+            color: #999;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            color: #667eea;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .result-message {
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .result-message i {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .result-message.high-crowd {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(255, 107, 107, 0.05));
+            color: #e74c3c;
+            border-left: 4px solid #e74c3c;
+        }
+
+        .result-message.low-crowd {
+            background: linear-gradient(135deg, rgba(46, 213, 115, 0.1), rgba(46, 213, 115, 0.05));
+            color: #27ae60;
+            border-left: 4px solid #27ae60;
+        }
+
+        .divider {
+            height: 1px;
+            background: #e0e0e0;
+            margin: 2rem 0;
+        }
+
+        .videos-section {
+            margin-bottom: 2rem;
+        }
+
+        .videos-section h3 {
+            color: #333;
+            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .videos-section h3 i {
+            color: #667eea;
+        }
+
+        .videos-wrapper {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .video-box {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .video-box h4 {
+            color: #333;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 1rem;
+        }
+
+        .video-box h4 i {
+            color: #667eea;
+        }
+
+        .video-box video {
+            width: 100%;
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            background: #000;
+        }
+
+        .detail-info {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-top: 1.5rem;
+        }
+
+        .detail-info p {
+            color: #666;
+            margin-bottom: 0.8rem;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .detail-info i {
+            color: #667eea;
+            width: 20px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            text-align: center;
+            min-width: 150px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-download {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+            color: white;
+        }
+
+        .btn-download:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .videos-wrapper {
+                grid-template-columns: 1fr;
+            }
+
+            .result-card {
+                padding: 1.5rem;
+            }
+
+            .stat-box {
+                padding: 1rem;
+            }
+
+            .stat-value {
+                font-size: 1.5rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1><i class="fas fa-chart-bar"></i> Video Analysis Result</h1>
+        <p>Video Crowd Counting Analysis Complete</p>
+    </div>
+
+    <div class="result-card">
+        <!-- Result Message -->
+        {% if crowd_detected %}
+            <div class="result-message high-crowd">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>{{ message }}</span>
+            </div>
+        {% else %}
+            <div class="result-message low-crowd">
+                <i class="fas fa-check-circle"></i>
+                <span>{{ message }}</span>
+            </div>
+        {% endif %}
+
+        {% if crowd_detected %}
+        <!-- Statistics -->
+        <div class="stats-grid">
+            <div class="stat-box">
+                <div class="stat-label"><i class="fas fa-chart-line"></i> Average Count</div>
+                <div class="stat-value">{{ avg_count|int }}</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label"><i class="fas fa-arrow-up"></i> Peak Count</div>
+                <div class="stat-value">{{ max_count|int }}</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label"><i class="fas fa-film"></i> Data Type</div>
+                <div class="stat-value" style="font-size: 1.2rem; color: #764ba2;">Video</div>
+            </div>
+        </div>
+
+        <!-- Videos Section -->
+        <div class="divider"></div>
+
+        <div class="videos-section">
+            <h3>
+                <i class="fas fa-video"></i> Video Comparison
+            </h3>
+            <div class="videos-wrapper">
+                <!-- Original video -->
+                <div class="video-box">
+                    <h4>
+                        <i class="fas fa-film"></i> Original Video
+                    </h4>
+                    <video controls>
+                        <source src="{{ url_for('static', filename='uploads/' + original_filename) }}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+
+                <!-- Processed video -->
+                <div class="video-box">
+                    <h4>
+                        <i class="fas fa-wand-magic-sparkles"></i> Processed Video
+                    </h4>
+                    <video controls>
+                        <source src="{{ url_for('display_video', videoname=processed_filename) }}" type="video/x-msvideo">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detail Information -->
+        <div class="detail-info">
+            <p>
+                <i class="fas fa-lightbulb"></i>
+                <strong>Analysis Details:</strong> The system analyzed the video and overlay crowd count information on each frame. Original frames were sampled for efficient processing.
+            </p>
+            <p>
+                <i class="fas fa-info-circle"></i>
+                <strong>Peak Count:</strong> Maximum estimated crowd detected in any single frame was {{ max_count|int }} people.
+            </p>
+            <p>
+                <i class="fas fa-info-circle"></i>
+                <strong>Average Count:</strong> Average crowd size across all analyzed frames was {{ avg_count|int }} people.
+            </p>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+        <a href="{{ url_for('download_video', videoname=processed_filename) }}" class="btn btn-download">
+            <i class="fas fa-download"></i> Download Video
+        </a>
+        <a href="{{ url_for('download_video_report', processed_filename=processed_filename) }}" class="btn btn-download">
+            <i class="fas fa-download"></i> Download Report
+        </a>
+        <a href="/" class="btn btn-primary">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+    </div>
+    {% else %}
+        <!-- No crowd: show only message and back button -->
+        </div>
+        <div class="action-buttons" style="margin-top:1.5rem;">
+            <a href="/" class="btn btn-primary">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+</body>
+</html>
