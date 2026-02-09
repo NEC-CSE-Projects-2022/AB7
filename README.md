@@ -28,7 +28,7 @@ Crowd counting from images is vital for applications such as security monitoring
 ## Paper Reference (Inspiration)
 **EfficientSINet-B4: Enhancing Crowd Counting with EfficientNet and Shunting Inhibition Mechanism**  
 **Author:** Yerragunta Mahesh Kumar Reddy  
-
+**Paper References Link** https://ieeexplore.ieee.org/document/9536723 
 This work is inspired by the original Shunting Inhibition Network (SINet) and improves it using a deeper EfficientNet-B4 backbone for enhanced feature extraction.
 
 ---
